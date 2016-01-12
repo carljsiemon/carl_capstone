@@ -64,11 +64,7 @@ class WaveReadAdvanced:
         magnitudes = magnitudes / np.linalg.norm(magnitudes)
         return frequencies, magnitudes
     
-    
-    
-    
-    
-    
+
     def create_power_spectra_array(self, segment_length, sample_rate):
         number_of_samples_per_segment = int(segment_length * sample_rate)
         time_per_sample = 1. / sample_rate
@@ -102,10 +98,11 @@ class WaveReadAdvanced:
     
     def convert_one(self, file_name, segment_length, sample_rate, segments, recording):
         try:
-            freq_row, freq_labels = self.get_frequency_domain_data(segment_length, sample_rate, segments)
+            freq_row, freq_labels, mean_power, mean_maxs = self.get_frequency_domain_data(segment_length, sample_rate, segments)
             temporal_row, time_labels = self.get_time_domain_data(recording)
             feature_row = np.hstack((freq_row, temporal_row))
-            return feature_row, np.hstack((freq_labels,time_labels))
+            feature_row = np.hstack ((feature_row, np.array([mean_power, mean_maxs])))
+            return feature_row, np.hstack((np.hstack((freq_labels,time_labels)), np.array(["Mean power", "Mean _maxs"])))
         except Exception, e:
             print e
             raise
@@ -128,7 +125,7 @@ class WaveReadAdvanced:
     def get_frequency_domain_data(self, segment_length, sample_rate, segments):
         ### this returns the maximal a(w,t)^2+b(w,t)^2 data by frequency band where the rows are different times and columns represent frequencies
         try:
-            power_w_t, corresponding_freqs = self.get_power_vs_t_and_w(segment_length, sample_rate, segments)
+            power_w_t, corresponding_freqs, mean_power, mean_maxs = self.get_power_vs_t_and_w(segment_length, sample_rate, segments)
         except Exception, e:
             print e
             raise
@@ -138,7 +135,7 @@ class WaveReadAdvanced:
         beat_data = self.extract_beat_via_acf(power_w_t)
         power_labels = ["Pmax in " + freq for freq in corresponding_freqs]
         stacked_beat_data, beat_labels = self.h_stacker(beat_data, corresponding_freqs)
-        return np.hstack((maximal_power_w, stacked_beat_data)), np.hstack((np.array(power_labels), np.array(beat_labels)))
+        return np.hstack((maximal_power_w, stacked_beat_data)), np.hstack((np.array(power_labels), np.array(beat_labels))), mean_power, mean_maxs
     
     def h_stacker (self, input_data, corresponding_freqs):
         output = []
@@ -161,7 +158,8 @@ class WaveReadAdvanced:
             print e
             raise
         print power_spectra_array.shape
-        power_spectra_array = power_spectra_array / np.mean(power_spectra_array)
+        power_mean = np.mean(power_spectra_array)
+        power_spectra_array = power_spectra_array / power_mean
         number_of_samples = int(segment_length * sample_rate)
         sample_length = 1. / sample_rate 
         frequencies = np.fft.fftfreq(number_of_samples, sample_length)
@@ -170,11 +168,12 @@ class WaveReadAdvanced:
         try:
             bands, corresponding_freqs = self.get_bands(frequencies)
             all_max_by_bin = [self.get_max_by_bin(power_spectra_array[song_time], bands) for song_time in xrange(len(power_spectra_array))]
-            all_max_by_bin = np.array(all_max_by_bin) / np.mean(all_max_by_bin)
+            max_mean = np.mean(all_max_by_bin)
+            all_max_by_bin = np.array(all_max_by_bin) / max_mean
         except Exception, e:
             print e
             raise
-        return all_max_by_bin, corresponding_freqs
+        return all_max_by_bin, corresponding_freqs, power_mean, max_mean
 #         GROUP BY LOGARITHMIC FREQUENCY BANDS YA MOOK!!!!!!!!!!!!!!!
 
     def get_bands(self, frequencies):
@@ -258,7 +257,18 @@ class WaveReadAdvanced:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(column_names)
             writer.writerow(song_data)
-       
+    
+    def get_full_fourier_averages(self, file_name):
+        sample_rate, recording = self.get_recording(file_name)
+        segment_length, sample_rate, segments, recording = self.get_segments_temporally(file_name, sample_rate, recording)
+        #get_frequency_domain_data(segment_length, sample_rate, segments)
+        #.get_power_vs_t_and_w(segment_length, sample_rate, segments)
+        power_spectra_array = self.create_power_spectra_array(segment_length, sample_rate)
+        power_spectra_array = self.fill_power_spectra_array(segments, power_spectra_array, sample_rate)
+        number_of_samples = power_spectra_array.shape[1]*2 +1
+        sample_length = 1. / sample_rate 
+        return power_spectra_array, np.fft.fftfreq(number_of_samples, sample_length)[0:power_spectra_array.shape[1]]  
+    
     def convert_all(self):
         self.delete_files()
         song_dir = Globals.getSongDir()
@@ -279,6 +289,7 @@ class WaveReadAdvanced:
                 try:
                     segment_length, sample_rate, segments, recording = self.get_segments_temporally(file_name, sample_rate, recording)
                     song_data, column_labels = self.convert_one(file_name, segment_length, sample_rate, segments, recording)
+                    
                     print file_name
                 except Exception, e:
                     print e

@@ -41,11 +41,13 @@ def plot_data(df, index_mask, frequency_bins, plot_label, songs):
     plt.xticks(x,modded_bins, rotation = 'vertical')
     plt.xlim([np.min(x),np.max(x)])
     
-reader = WaveRead(60000, .05)
+#reader = WaveRead(60000, .05)
 #reader.convert_all()
 modeler = Modeler()
 #nmf_matrix, components, song_names = modeler.run_all_models()
-components, song_names, labels, components2 = modeler.run_all_models()
+components, song_names, labels,\
+components2, all_reports,\
+all_tests, all_predicts, all_importances = modeler.run_all_models()
 # blah = pairwise_distances(nmf_matrix, metric='cosine')
 # print song_names[np.argsort(blah[100])[0:5]]
 print "KMEANS"
@@ -56,15 +58,16 @@ print_majors(components2, labels)
 print "--------------"
 # print "DBSCAN"
 # print_majors(dbscan, labels)
-
-
-
-
-
-
-#modeler.run_all_models()
-
-#df = modeler.df
-#beat_mask, power_mask, frequency_bins = modeler.extract_frequencies_and_indeces()
-# plot_data(df, power_mask, frequency_bins, "Song-averaged power", [0,1])
-# plot_data(df, beat_mask, frequency_bins, "Beat strength", [0,1])
+np.save('all_reports.npy', all_reports)
+np.save('components.npy', components2)
+np.save('labels2.npy', labels)
+np.save('all_tests.npy', all_tests)
+np.save('all_predicts.npy', all_predicts)
+np.save('song_names_post.npy', song_names)
+np.save('all_importances.npy', all_importances)
+df = modeler.df
+name_dict = dict()
+for name in song_names:
+    name_dict[name] = name
+good_mask = np.array([True if name in name_dict else False for name in df['Song Name']])
+np.save('good_mask.npy', good_mask)
