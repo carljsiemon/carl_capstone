@@ -24,7 +24,7 @@ I used 200 songs per genre for each of the 5 genres: hip-hop (rap), classical, t
 
 Below is a plot of the waveform data of 'Smile' by Tupac in the time domain.  All songs are divided into two tracks, which is why there are two curves displayed.
 
-<p align="center">![im1](https://github.com/carljsiemon/carl_capstone/tree/master/images/signatime.PNG)
+<p align="center">![im1](https://github.com/carljsiemon/carl_capstone/tree/master/images/signatime.png)
 
 
 ### Feature Engineering in the Frequency Domain:
@@ -72,9 +72,9 @@ The above described feature data is stored as a single feature row in one .csv f
 	* Numerical (floats) feature data as a 2-d numpy array, commonly referred to as X. 
 	* Genre labels as a 1-d numpy string array, commonly referred to as y.
 ### Do we have signal from our feature data? Let's examine the plots below.
-<p align="center">![im2](https://github.com/carljsiemon/carl_capstone/tree/master/images/scatterplots.PNG)
-<p align="center">![im3](https://github.com/carljsiemon/carl_capstone/tree/master/images/normalizedenergy.PNG)
-<p align="center">![im4](https://github.com/carljsiemon/carl_capstone/tree/master/images/beatstrength.PNG)
+<p align="center">![im2](https://github.com/carljsiemon/carl_capstone/tree/master/images/scatterplots.png)
+<p align="center">![im3](https://github.com/carljsiemon/carl_capstone/tree/master/images/normalizedenergy.png)
+<p align="center">![im4](https://github.com/carljsiemon/carl_capstone/tree/master/images/beatstrength.png)
 
 The evident separation in these plots is highly suggestive that our feature engineering has produced classifiable, structured data.
 
@@ -83,13 +83,13 @@ Gradient boosting classifier (GBC) was found to give the highest supervised clas
 
 The plots below summarize the overall ability of the GBC to classify data.  As indicated by the confusion matrix, we observe significant confusion between rock and pop, probably due to the fact that these two genres can sometimes sound similar. 
 
-<p align="center">![im5](https://github.com/carljsiemon/carl_capstone/tree/master/images/confusionmat.PNG)
-<p align="center">![im6](https://github.com/carljsiemon/carl_capstone/tree/master/images/precrec.PNG)
+<p align="center">![im5](https://github.com/carljsiemon/carl_capstone/tree/master/images/confusionmat.png)
+<p align="center">![im6](https://github.com/carljsiemon/carl_capstone/tree/master/images/precrec.png)
 
 The GBC returns the feature importances displayed below. The top and bottom of the 'error' bars on the first plot denote the maximum and minimum of the feature importances within each group.  The levels of the blue bar plots in the first plot corresponds to the average feature importance within the group.  The individual features in the second plot can be read using the the zooming feature of your browser. 
 
-<p align="center">![im7](https://github.com/carljsiemon/carl_capstone/tree/master/images/groupedimportances.PNG)
-<p align="center">![im8](https://github.com/carljsiemon/carl_capstone/tree/master/images/allimportances.PNG)
+<p align="center">![im7](https://github.com/carljsiemon/carl_capstone/tree/master/images/groupedimportances.png)
+<p align="center">![im8](https://github.com/carljsiemon/carl_capstone/tree/master/images/allimportances.png)
 
 ### Unsupervised learning: K-Means Clustering
 Before unsupervised learning was conducted, our feature data was normalized and then outliers were removed from the data set due to the importance of distances in the algorithms that were used.  Feature rows containing any column data that was more than 3.5 standard deviations from the column-mean were considered to be outliers.
@@ -101,7 +101,7 @@ K-Means Clustering:
 
 1. K-Means clustering was performed to classify our feature data into 5 clusters and this technique was found to achieve the highest average cluster purity of around 60%.  The following model parameters were used: n-clusters=5, init='k-means++', n-init=10, max-iter=300, tol=.0001.
 2. The summary of cluster purity from K-Means clustering is given below:
-<p align="center">![im9](https://github.com/carljsiemon/carl_capstone/tree/master/images/clusterpurity.PNG)
+<p align="center">![im9](https://github.com/carljsiemon/carl_capstone/tree/master/images/clusterpurity.png)
 
 NMF/K-Means clustering:
 
