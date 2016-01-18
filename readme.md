@@ -27,7 +27,7 @@ Below is a plot of the waveform data of 'Smile' by Tupac in the time domain.  Al
 <p align="center">![im1](https://github.com/carljsiemon/carl_capstone/blob/master/images/signatime.png)
 
 
-### Feature Engineering in the Frequency Domain:
+### Feature Engineering in the Frequency Domain
 The following steps are taken to begin the featurization of the the unstructured song data in the frequency domain:
 
 1. Divide song into .05 second segments with 1/2 segment overlap between each segment.  These segments can be thought of 'instantaneous' snapshots of the song.
@@ -44,7 +44,7 @@ The following steps describe both what and how features are extracted from Pmax(
 5. **Standard deviation of separation between beats by frequency band**.  Similar to 3 except the standard deviation of the resulting lags is taken.
 6. **Total-song beat strength in each frequency band**.  The magnitude of the first peak (after lag 0) of the autocorrelation function of Pmax(w',t) is found for the entire song in each frequency band w'.
 
-### Feature Engineering in the Time Domain:
+### Feature Engineering in the Time Domain
 The following describes how song feature data is extracted in the time-domain (no Fourier analysis).  Specifically, we are interested in ZCR, the zero crossing rate, which is the rate at which the song's signal crosses zero per unit time.
   
 To characterize ZCR (or a metric similar to it) for each song, the following features are computed:
@@ -67,7 +67,7 @@ In summary, we have the following types of features:
 * **Median crossing time separation**
 * **Variance of crossing time separation**
 
-### Collecting and Storing Feature Data:
+### Collecting and Storing Feature Data
 The above described feature data is stored as a single feature row in one .csv file per song.  In addition to the feature data, each .csv file contains the song name and genre label, which are denoted by either 'hip', 'cla', 'roc', 'pop', and 'tec' for the genres hip-hop, classical, rock, pop, and techno, respectively.
 
 ### Loading and Cleaning Data for Analysis
@@ -91,7 +91,7 @@ The plots below summarize the overall ability of the GBC to classify data.  As i
 <p align="center">![im5](https://github.com/carljsiemon/carl_capstone/blob/master/images/confusionmat.png)
 <p align="center">![im6](https://github.com/carljsiemon/carl_capstone/blob/master/images/precrec.png)
 
-The GBC returns the feature importances displayed below. The top and bottom of the 'error' bars on the first plot denote the maximum and minimum of the feature importances within each group.  The levels of the blue bar plots in the first plot corresponds to the average feature importance within the group.  The individual feature labels in the second plot can be viewed by zooming in with you browser. 
+The GBC returns the feature importances displayed below. The top and bottom of the 'error' bars on the first figure denote the maximum and minimum of the feature importances within each group.  The levels of the blue bar plots in the first plot corresponds to the average feature importance within the group.  The individual feature labels in the second figure can be viewed by zooming in with you browser. 
 
 <p align="center">![im7](https://github.com/carljsiemon/carl_capstone/blob/master/images/groupedimportances.png)
 <p align="center">![im8](https://github.com/carljsiemon/carl_capstone/blob/master/images/allimportances.png)
@@ -123,7 +123,7 @@ Non-negative Matrix Factorization (NMF) combined with K-Means was also attempted
 2. [sklearn](http://scikit-learn.org/): Scikit-Learn, a Python library that provides machine learning libraries and packages.
 
 ### How can the model be improved?
-Besides adding more songs to the data set, songs can be divided into a set of 30 second chunks (or smaller) instead of the 90 second time frame used here.  Each of these smaller song chunks could be listened to separately and then classified.  A model could then be trained on the resulting ensemble of data.  To classify a new song, its 30 second chunks would be classified by the model, and the song would be classified according to its majority genre leader.  This adds a layer of diversification/redundancy in classification and helps to address the issues that arise from one part of a song 'sounding different' than another. For example, a rock song might sound more classical in certain parts, such as 'Bohemian Rhapsody' by Queen.   
+Besides adding more songs to the data set, songs can be divided into a set of 30 second chunks (or smaller) instead of the 90 second time frame used here.  Each of these smaller song chunks could be listened to separately and then classified by the listener.  A model could then be trained on the resulting ensemble of  feature data.  To classify a new song, its 30 second chunks would be classified by the model, and the song as a whole would be classified according to its majority genre leader.  This adds a layer of diversification/redundancy in classification and helps to address the issues that arise from one part of a song 'sounding different' than another. For example, a rock song might sound more classical in certain parts, such as 'Bohemian Rhapsody' by Queen.   
 
 ### Acknowledgements
 
