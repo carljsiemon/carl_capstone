@@ -34,6 +34,9 @@ visualize the results.
 OUTPUTS are none if OUTPUTS are not specified in function documentation
 '''
 
+''' this global variable is used within several functions below'''
+glob_classes = ['hip', 'roc', 'pop', 'cla', 'tec']
+
 def get_majors(components, labels):
     '''
     Function purpose is to get the genre composition of each cluster
@@ -41,13 +44,10 @@ def get_majors(components, labels):
     INPUTS: components = list of cluster names
     for each song; labels = list of corresponding genre label for each song
     '''
-    print components
-    print labels
     foo = zip(components, labels)
     struct_array = np.array([np.array([element[1], element[0]]) for element in foo])
     outputs = []
     output_names = []
-    print struct_array
     for name in set(struct_array[:, 1]):
         mask = struct_array[:, 1] == name
         outputs.append(Counter(struct_array[mask][:, 0]).most_common())
@@ -58,6 +58,34 @@ def get_majors(components, labels):
     (by genre) of each cluster
     '''
     return outputs
+
+
+def plot_signal_vs_time_data(recording, sample_rate):
+    '''
+    Plot time domain signal data (vs. time) 
+    INPUTS: recording = 2d numpy float array containing song signal
+    data. sample_rate = (float) rate at which song is sampled
+    '''
+    plt.figure()
+    plt.axes([.125, .175, .75, .75])
+    plt.ylabel('Song Signal', fontsize=24)
+    plt.xlabel("Time (seconds)", fontsize=24)
+    start_time = 50
+    end_time = 50.2
+    segment_length = .05
+    start_index = np.round(start_time / segment_length) *  segment_length * sample_rate  
+    end_index = np.round(end_time / segment_length) *  segment_length * sample_rate  
+    x = np.arange(start_index, end_index)
+    plt.plot(x, recording[start_index:end_index,0], linewidth=2, label = 'Track A')
+    plt.plot(x, recording[start_index:end_index,1], 'r--', linewidth=2, label = 'Track B')
+    plt.legend()
+    av = (start_index+ end_index) / 2.
+    plt.xticks(np.array([start_index +300,av, end_index]),\
+            np.round(np.array([start_index+300,av, end_index]) / float(sample_rate)*100)/100, fontsize = 22)
+    plt.yticks(fontsize =20)
+    plt.title('"Smile" by Tupac', fontsize = 26)
+    plt.xlim([np.min(x), np.max(x)])
+
 
 def plot_feature_vs_frequency_data(X,\
         index_mask, frequency_bins, plot_label, song_labels):
@@ -70,8 +98,12 @@ def plot_feature_vs_frequency_data(X,\
     '''
     plt.figure()
     plt.axes([.125, .175, .75, .75])
-    plt.ylabel(plot_label, fontsize=20)
+    plt.title(plot_label, fontsize = 23)
+    if 'Energy (scaled to total song energy)' in plot_label:
+        plot_label = 'Energy'
+    plt.ylabel(plot_label.strip('Normalized'), fontsize=20)
     plt.xlabel("Frequency (hz)", fontsize=20)
+    
     x = np.log(frequency_bins)
     '''plot aggregate curves for each label here'''
     for lab in set(song_labels):
@@ -109,8 +141,8 @@ def plot_supervised_confusion_matrix(actuals, predicteds):
     '''
     n_labels = len(set(list(actuals[0])))
     master_conf = np.zeros((n_labels, n_labels))
-    col_labels = ['hip', 'roc', 'pop', 'cla', 'tec']
-    row_labels = ['hip', 'roc', 'pop', 'cla', 'tec']
+    col_labels = glob_classes
+    row_labels = col_labels
     '''
     We need to aggregate the confusion 
     matrix results from each of the KFolds first
@@ -136,6 +168,9 @@ def plot_supervised_confusion_matrix(actuals, predicteds):
                     loc='center', bbox=[0, 0, 1, 1],\
                     cellColours=cmap1(norm(table_vals)))
     foo.set_fontsize(20)
+    plt.title('K-Fold Aggregate Confusion Matrix: Gradient Boosting Classifier', fontsize = 25)
+    plt.ylabel('Actual', fontsize = 23, labelpad=60)
+    plt.xlabel('Predicted', fontsize = 23, labelpad =10)
     plt.xticks([])
     plt.yticks([])
     return master_conf 
@@ -151,7 +186,7 @@ def plot_feature_importance(importances, all_masks, agg_labels, ind_labels):
     RETURNS: top 8 most important features as 1d numpy string array from ind_labels
     '''
     plt.figure()
-    plt.axes([.125, .22, .75, .75])
+    plt.axes([.125, .22, .75,.7])
     agg_importances = []
     agg_mins = []
     agg_maxs = []
@@ -172,18 +207,19 @@ def plot_feature_importance(importances, all_masks, agg_labels, ind_labels):
     '''plot the aggregate feature importances'''
     plt.bar(np.arange(len(all_masks)),\
     agg_importances, yerr=stds, ecolor = 'k', capsize = 10)
-    plt.xticks(np.arange(0,len(all_masks)) + .4, agg_labels, rotation=45,  fontsize = 14)
+    plt.xticks(np.arange(0,len(all_masks)) + .4, agg_labels, rotation=45,  fontsize = 12)
     plt.ylabel('Feature Importance', fontsize = 20)
-    
+    plt.title('Grouped Feature Importances', fontsize = 23)
     '''plot all the individual features'''
     plt.figure()
-    plt.axes([.125, .26, .75, .71])
+    plt.axes([.125, .26, .75, .65])
     importances = np.array(importances)
     agg_mask = np.array([bool(num) for num in agg_mask.tolist()])
     sub_importances = importances[agg_mask]
     plt.bar(np.arange(sub_importances.shape[0]), sub_importances)
     plt.xticks(np.arange(0,ind_labels.shape[0]) + .5, ind_labels, rotation='vertical',  fontsize =6)
     plt.ylabel('Feature Importance', fontsize = 20)
+    plt.title('All Feature Importances', fontsize = 23)
     ''' return top 8 most important features here'''
     return ind_labels[np.argsort(sub_importances)[::-1]][0:8]
    
@@ -270,7 +306,7 @@ def make_cluster_purity_plots(components, labels):
     p1 = plt.barh(np.arange(5),purity, color = np.array(majorities))
     p2 = plt.barh(np.arange(5), non_purity, left = purity, color = 'grey')
     '''print purity percentage of each cluster'''
-    [plt.text(.01,row + .3, 'purity='+str(trunc(purity[row])) +'%', \
+    [plt.text(.01,row + .3, 'majority purity='+str(trunc(purity[row])) +'%', \
             color = 'w', weight= 'bold', fontsize=16) for row in xrange(5)]
     
     '''make this legend more elegant and more general in the future'''
@@ -283,6 +319,7 @@ def make_cluster_purity_plots(components, labels):
     vals = np.array([str(elm + 1) for elm in foo])
     plt.yticks(np.arange(5)+.4, vals, fontsize = 20)
     plt.xticks(fontsize = 16)
+    plt.title('K-Means Cluster Purities', fontsize = 24)
     plt.ylabel('Clusters', fontsize=22)
     plt.xlabel('Composition', fontsize=22)
     
@@ -357,15 +394,16 @@ def get_prec_rec_f1_acc_from_conf_mat(conf_mat):
 def trunc(input):
     return np.round(input * 1000) / 10
 
-def make_acc_prec_rec_plots(classes, conf_mat):
+def make_acc_prec_rec_plots(conf_mat):
     '''
     This function plots accuracy, precision, recall, and 
     F1 score for each genre as bar plots.
-    INPUTS: classes = 1d string numpy array of class names; conf_mat = confusion
+    INPUTS:conf_mat = confusion
     matrix as 2d numpy int array
     '''
     recall, precision, f1,\
     avg_recall, avg_precision,avg_f1, acc_av = get_prec_rec_f1_acc_from_conf_mat(conf_mat)
+    print conf_mat
     fig, ax = plt.subplots()
     n_groups = 5
     index = np.arange(n_groups)
@@ -384,8 +422,8 @@ def make_acc_prec_rec_plots(classes, conf_mat):
              + str(trunc(acc_av)),size = 18)
     plt.xlabel('Genre', fontsize = 20)
     plt.ylabel('Scores', fontsize = 20)
-    plt.title('Supervised learning: GBC scores by precision,\
-    recall, F1, and accuracy', fontsize = 20)
+    plt.title('Supervised learning: GBC scores by precision, recall, F1, and accuracy', fontsize = 23)
+    classes = glob_classes
     plt.xticks(index + bar_width + .1, classes, fontsize = 16)
     plt.ylim([0, 1.2])
     plt.legend()
@@ -413,17 +451,25 @@ df = modeler.df
 Get feature mask data and labels so we know what to plot
 '''
 all_masks = modeler.extract_frequencies_and_indeces()
-mask_labels = ['Energy by frequency', 'Beat Strength',\
-'$<Beat\ \ Separation>$', '$Med(Beat\ \ Separation)$',\
-'$Std(Beat\ \ Separation)$', 'ZCR data', 'Total energy']
 frequency_bins = all_masks[-2]
-
+ 
 '''Start plotting'''
 make_cluster_purity_plots(components, labels)
 conf_mat = plot_supervised_confusion_matrix(all_tests, all_predicts)
-make_acc_prec_rec_plots(list(set(labels)), conf_mat)
+make_acc_prec_rec_plots(conf_mat)
+mask_labels = ['Energy', 'Beat Strength',\
+'<Beat Separation>', '$Med(Beat\ \ Separation)$',\
+'$Std(Beat\ \ Separation)$', 'ZCR data', 'Total energy']
 features_of_interest =\
 plot_feature_importance(all_importances, all_masks[:-2], mask_labels, all_masks[-1])
-'''We plot the top 8 features of interest in our scatter plots'''
-make_scatter_plots(features_of_interest, df)
+'''We plot the top 5 features of interest in our scatter plots'''
+make_scatter_plots(features_of_interest[0:5], df)
+'''Make more detailed mask labels'''
+mask_labels = ['Energy (scaled to total song energy)', 'Normalized Beat Strength',\
+'Normalized <Beat Separation>', '$Med(Beat\ \ Separation)$',\
+'$Std(Beat\ \ Separation)$', 'ZCR data', 'Total energy']
 make_feature_vs_frequency_plots(all_masks, mask_labels, X_unscaled, frequency_bins, labels)
+reader = WaveRead()
+sample_rate, recording = reader.get_recording('Tupac- Smile.wav')
+plot_signal_vs_time_data(recording, sample_rate)
+
