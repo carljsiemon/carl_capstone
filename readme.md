@@ -2,7 +2,7 @@
 
 ### Overview
 
-WaveToGenre is a data science project that uses machine learning (both unsupervised/supervised) to classify a song's musical genre based solely on its waveform. It uses Fourier Analysis techniques to convert a song's unstructured waveform data into a meaningful, structured feature space that allows for modeling.  The Github repo with fully doumented code and Readme can be found [here](github.com/carljsiemon/carl_capstone). 
+WaveToGenre is a data science project that uses machine learning (both unsupervised/supervised) to classify a song's musical genre based solely on its waveform. It uses Fourier Analysis techniques to convert a song's unstructured waveform data into a meaningful, structured feature space that allows for modeling.  The fully documented code for this project can be found [here](https://github.com/carljsiemon/carl_capstone/tree/master/code). 
 
 ### Motivation
 
@@ -16,11 +16,11 @@ WaveToGenre could also be useful to record labels.  They could use WaveToGenre t
 
 #### Data Source:
 
-1000 .mp3 songs from my own personal music library.  The total number of songs used has been observed to have a dramatic effect on the predictive capability of the models used.  Future work will involve a much larger data set of ~10,000 songs for training.
+1000 .mp3 songs from my personal music library.  The total number of songs has been observed to have a dramatic effect on the predictive capability of the models used in this work.  Future work will involve a much larger data set of ~10,000 songs.
 
 #### Data Scope:
 
-I used 200 songs per genre for each of the 5 genres: hip-hop (rap), classical, techno, rock, and pop.  Itunes was used to convert the .mp3's to .wav's.  To avoid difficulty in classifying the beginning of songs, song data between the 30 second and 2 minute mark was used.  
+I used 200 songs per genre for each of the 5 genres: hip-hop (rap), classical, techno, rock, and pop.  Itunes was used to convert the .mp3's to .wav's, which was required for my analysis.  To avoid difficulty in classifying the beginning of songs, song data between the 30 second and 2 minute mark was used.  
 
 Below is a plot of the waveform data of 'Smile' by Tupac in the time domain.  All songs are divided into two tracks, which is why there are two curves displayed.
 
@@ -43,6 +43,7 @@ The following steps describe both what and how features are extracted from Pmax(
 4. **Median separation between beats by frequency band**.  Similar to 3 except the median of the resulting lags is taken.
 5. **Standard deviation of separation between beats by frequency band**.  Similar to 3 except the standard deviation of the resulting lags is taken.
 6. **Total-song beat strength in each frequency band**.  The magnitude of the first peak (after lag 0) of the autocorrelation function of Pmax(w',t) is found for the entire song in each frequency band w'.
+
 ### Feature Engineering in the Time Domain:
 The following describes how song feature data in the time-domain (no Fourier analysis) is extracted.  Specifically, we look at ZCR, the zero crossing rate, which is the rate at which the song's signal crosses zero per unit time.
   
