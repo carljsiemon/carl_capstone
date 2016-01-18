@@ -45,24 +45,27 @@ The following steps describe both what and how features are extracted from Pmax(
 6. **Total-song beat strength in each frequency band**.  The magnitude of the first peak (after lag 0) of the autocorrelation function of Pmax(w',t) is found for the entire song in each frequency band w'.
 
 ### Feature Engineering in the Time Domain:
-The following describes how song feature data in the time-domain (no Fourier analysis) is extracted.  Specifically, we look at ZCR, the zero crossing rate, which is the rate at which the song's signal crosses zero per unit time.
+The following describes how song feature data is extracted in the time-domain (no Fourier analysis).  Specifically, we are interested in ZCR, the zero crossing rate, which is the rate at which the song's signal crosses zero per unit time.
   
-To characterize ZCR for each song, the following features are computed:
+To characterize ZCR (or a metric similar to it) for each song, the following features are computed:
 
 * **Average crossing time separation**. Computed by finding the time separations between each zero crossing and then averaging the resulting data.
 * **Median crossing time separation**. Computed by finding the time separations between each zero crossing and then taking the median of the resulting data.
 * **Variance of crossing time separation**. Computed by finding the time separations between each zero crossing and then finding the variance of the resulting data.
+
 ### Summary of features:
-1. In summary, we have the following types of features:
- 	* **Total song 'energy'**
-	* **Average power (or simply 'energy') in each frequency band**
-	* **Average separation between beats by frequency band**
-	* **Median separation between beats by frequency band**
-	* **Standard deviation of separation between beats by frequency band**
-	* **Total-song beat strength in each frequency band**
-	* **Average crossing time separation**
-	* **Median crossing time separation**
-	* **Variance of crossing time separation**
+
+In summary, we have the following types of features:
+
+* **Total song 'energy'**
+* **Average power (or simply 'energy') in each frequency band**
+* **Average separation between beats by frequency band**
+* **Median separation between beats by frequency band**
+* **Standard deviation of separation between beats by frequency band**
+* **Total-song beat strength in each frequency band**
+* **Average crossing time separation**
+* **Median crossing time separation**
+* **Variance of crossing time separation**
 
 ### Collecting and Storing Feature Data:
 The above described feature data is stored as a single feature row in one .csv file per song.  In addition to the feature data, each .csv file contains the song name and genre label, which are denoted by either 'hip', 'cla', 'roc', 'pop', and 'tec' for the genres hip-hop, classical, rock, pop, and techno, respectively.
@@ -70,8 +73,9 @@ The above described feature data is stored as a single feature row in one .csv f
 ### Loading and Cleaning Data for Analysis
 1.  All .csv's are loaded into a Pandas data frame for analysis.  Any rows containing null data are dropped from the dataframe.    
 2.  The Pandas dataframe is separated into:
-	* Numerical (floats) feature data as a 2-d numpy array, commonly referred to as X. 
-	* Genre labels as a 1-d numpy string array, commonly referred to as y.
+	* Numerical (floats) feature data as a 2-d numpy array, commonly referred to as X in Python. 
+	* Genre labels as a 1-d numpy string array, commonly referred to as y in Python.
+
 ### Do we have signal from our feature data? Let's examine the plots below.
 <p align="center">![im2](https://github.com/carljsiemon/carl_capstone/blob/master/images/scatterplots.png)
 <p align="center">![im3](https://github.com/carljsiemon/carl_capstone/blob/master/images/normalizedenergy.png)
@@ -87,7 +91,7 @@ The plots below summarize the overall ability of the GBC to classify data.  As i
 <p align="center">![im5](https://github.com/carljsiemon/carl_capstone/blob/master/images/confusionmat.png)
 <p align="center">![im6](https://github.com/carljsiemon/carl_capstone/blob/master/images/precrec.png)
 
-The GBC returns the feature importances displayed below. The top and bottom of the 'error' bars on the first plot denote the maximum and minimum of the feature importances within each group.  The levels of the blue bar plots in the first plot corresponds to the average feature importance within the group.  The individual features in the second plot can be read using the the zooming feature of your browser. 
+The GBC returns the feature importances displayed below. The top and bottom of the 'error' bars on the first plot denote the maximum and minimum of the feature importances within each group.  The levels of the blue bar plots in the first plot corresponds to the average feature importance within the group.  The individual feature labels in the second plot can be viewed by zooming in with you browser. 
 
 <p align="center">![im7](https://github.com/carljsiemon/carl_capstone/blob/master/images/groupedimportances.png)
 <p align="center">![im8](https://github.com/carljsiemon/carl_capstone/blob/master/images/allimportances.png)
@@ -95,12 +99,12 @@ The GBC returns the feature importances displayed below. The top and bottom of t
 ### Unsupervised learning: K-Means Clustering
 Before unsupervised learning was conducted, our feature data was normalized and then outliers were removed from the data set due to the importance of distances in the algorithms that were used.  Feature rows containing any column data that was more than 3.5 standard deviations from the column-mean were considered to be outliers.
 
-In an ideal world, we can use unsupervised learning techniques to separate our song data into 5 separate clusters where the majority composition of each cluster corresponds to a different song genre, and the majority-percentage is close to 100 percent.  In other words, clusters labeled '1', '2', '3', '4', and '5' would contain only hip-hop, techno, rock, classical, and pop songs, respectively. 
+In an ideal world, we can use unsupervised learning techniques to separate our song data into 5 separate clusters, where the majority composition of each cluster corresponds to a different song genre and the majority-percentage is close to 100 percent.  For example, 5 clusters arbitrarily labeled '1', '2', '3', '4', and '5' would contain only hip-hop, techno, rock, classical, and pop songs, respectively.  In practice, however, the majority purity percentage is usually lower than this idealized case.
 
 
 K-Means Clustering:
 
-1. K-Means clustering was performed to classify our feature data into 5 clusters and this technique was found to achieve the highest average cluster purity of around 60%.  The following model parameters were used: n-clusters=5, init='k-means++', n-init=10, max-iter=300, tol=.0001.
+1. K-Means clustering was performed to classify our feature data into 5 clusters and this technique was found to achieve the highest average cluster purity of around 60%.  The following sklearn model parameters were used: n-clusters=5, init='k-means++', n-init=10, max-iter=300, tol=.0001.
 2. The summary of cluster purity from K-Means clustering is given below:
 <p align="center">![im9](https://github.com/carljsiemon/carl_capstone/blob/master/images/clusterpurity.png)
 
@@ -119,7 +123,7 @@ Non-negative Matrix Factorization (NMF) combined with K-Means was also attempted
 2. [sklearn](http://scikit-learn.org/): Scikit-Learn, a Python library that provides machine learning libraries and packages.
 
 ### How can the model be improved?
-Besides adding more songs to the data set, songs can be divided into a set of 30 second chunks (or smaller) instead of the 90 minute time frame used here.  Each of these song chunks could be listened to separately and then classified.  A model could then be trained on the resulting ensemble of data.  To classify a new song, its 30 second chunks would be classified by the model, and the majority genre leader for the song is then what the song would be classified as.  This adds a layer of diversification/redundancy in classification and helps to address the issues that arise from one part of a song 'sounding different' than another (for example, a rock song might sound more classical in certain parts, such as 'Bohemian Rhapsody' by Queen).   
+Besides adding more songs to the data set, songs can be divided into a set of 30 second chunks (or smaller) instead of the 90 second time frame used here.  Each of these smaller song chunks could be listened to separately and then classified.  A model could then be trained on the resulting ensemble of data.  To classify a new song, its 30 second chunks would be classified by the model, and the song would be classified according to its majority genre leader.  This adds a layer of diversification/redundancy in classification and helps to address the issues that arise from one part of a song 'sounding different' than another. For example, a rock song might sound more classical in certain parts, such as 'Bohemian Rhapsody' by Queen.   
 
 ### Acknowledgements
 
