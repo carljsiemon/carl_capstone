@@ -63,7 +63,7 @@ In summary, we have the following types of features:
 * **Median separation between beats by frequency band**
 * **Standard deviation of separation between beats by frequency band**
 * **Total-song beat strength in each frequency band**
-* **Average crossing time separation**
+* **Average crossing time separation (cts)**
 * **Median crossing time separation**
 * **Variance of crossing time separation**
 
